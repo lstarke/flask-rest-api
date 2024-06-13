@@ -37,7 +37,6 @@ def create_item():
         "store_id" not in item_data or
         "name" not in item_data
     ):
-        print("passou")
         abort(400, message="Bad request. Ensure 'price', 'store_id' and 'name' are includes in the JSON payload.")
     # validação se item já existe
     for item in items.values():
@@ -72,4 +71,25 @@ def get_item(item_id):
     except KeyError:
         abort(404, message="Store not found")
 
+@app.delete("/item/<string:item_id>")
+def delete_item(item_id):
+    print(items[item_id])
+    try:
+        del items[item_id]
+        return {"message": "Item deleted."}
+    except KeyError:
+        abort(404, message="Item not found.u")
+
+@app.put("/item/<string:item_id>")
+def update_item(item_id):
+    item_data = request.get_json()
     
+    if "price" not in item_data or "name" not in item_data:
+        abort(400, message="Bad request. Ensure 'price', and 'name' are includes in the JSON payload.")
+
+    try:
+        item = items[item_id]
+        item |= item_data # a partir do Python 3.9 para atualizar um dicionário inplace
+        return item
+    except KeyError:
+        abort(404, message="Item not found.")
